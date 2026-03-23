@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import i2c, sensor
-from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE
+from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_SCL, CONF_SDA, CONF_TEMPERATURE
 
 DEPENDENCIES = ["i2c"]
 
@@ -27,6 +27,8 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SHOW_CELSIUS, default=True): cv.boolean,
             cv.Optional(CONF_SHOW_PERCENT, default=True): cv.boolean,
             cv.Optional(CONF_SUBADDRESS, default=0): cv.int_range(min=0, max=7),
+            cv.Required(CONF_SDA): cv.int_range(min=0, max=48),
+            cv.Required(CONF_SCL): cv.int_range(min=0, max=48),
         }
     )
     .extend(cv.polling_component_schema("10s"))
@@ -39,6 +41,8 @@ async def to_code(config):
         config[CONF_ID],
         config[i2c.CONF_ADDRESS],
         config[CONF_SUBADDRESS],
+        config[CONF_SDA],
+        config[CONF_SCL],
     )
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)

@@ -12,7 +12,7 @@ namespace seglcd_temphum {
 
 class SegLCDTempHumComponent : public PollingComponent, public i2c::I2CDevice {
  public:
-  SegLCDTempHumComponent(uint8_t address, uint8_t subaddress);
+  SegLCDTempHumComponent(uint8_t address, uint8_t subaddress, uint8_t sda_pin, uint8_t scl_pin);
 
   void setup() override;
   void update() override;
@@ -47,6 +47,8 @@ class SegLCDTempHumComponent : public PollingComponent, public i2c::I2CDevice {
 
   uint8_t address_;
   uint8_t subaddress_;
+  uint8_t sda_pin_;
+  uint8_t scl_pin_;
   SegLCD_PCF85176_TempHumidity lcd_;
 };
 

@@ -10,11 +10,16 @@ namespace seglcd_temphum {
 
 static const char *const TAG = "seglcd_temphum";
 
-SegLCDTempHumComponent::SegLCDTempHumComponent(uint8_t address, uint8_t subaddress)
-    : address_(address), subaddress_(subaddress), lcd_(Wire, address, subaddress) {}
+SegLCDTempHumComponent::SegLCDTempHumComponent(uint8_t address, uint8_t subaddress, uint8_t sda_pin, uint8_t scl_pin)
+    : address_(address),
+      subaddress_(subaddress),
+      sda_pin_(sda_pin),
+      scl_pin_(scl_pin),
+      lcd_(Wire, address, subaddress) {}
 
 void SegLCDTempHumComponent::setup() {
   ESP_LOGCONFIG(TAG, "Initializing SegLCD TempHum display");
+  Wire.begin(this->sda_pin_, this->scl_pin_);
   this->lcd_.init();
   this->render_();
 }
@@ -28,6 +33,8 @@ void SegLCDTempHumComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "SegLCD TempHum");
   ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
   ESP_LOGCONFIG(TAG, "  Subaddress: %u", this->subaddress_);
+  ESP_LOGCONFIG(TAG, "  SDA pin: %u", this->sda_pin_);
+  ESP_LOGCONFIG(TAG, "  SCL pin: %u", this->scl_pin_);
   ESP_LOGCONFIG(TAG, "  Show Celsius: %s", this->show_celsius_ ? "true" : "false");
   ESP_LOGCONFIG(TAG, "  Show Percent: %s", this->show_percent_ ? "true" : "false");
 }

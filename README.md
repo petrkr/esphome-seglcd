@@ -42,6 +42,8 @@ sensor:
     lambda: return 4;
 
 seglcd_temphum:
+  sda: GPIO21
+  scl: GPIO22
   temperature: room_temperature
   humidity: room_humidity
   battery_level: display_battery_level
@@ -52,5 +54,5 @@ seglcd_temphum:
 ```
 
 Notes:
-- this PoC currently binds to the default Arduino `Wire` bus
+- this PoC initializes Arduino `Wire` directly from `sda`/`scl` configured on the component
 - intended as the first external-components prototype before upstreaming
