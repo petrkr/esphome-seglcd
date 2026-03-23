@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import i2c, sensor
-from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE, CONF_UPDATE_INTERVAL
+from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE
 
 DEPENDENCIES = ["i2c"]
 
@@ -12,7 +12,9 @@ CONF_SHOW_PERCENT = "show_percent"
 CONF_SUBADDRESS = "subaddress"
 
 seglcd_temphum_ns = cg.esphome_ns.namespace("seglcd_temphum")
-SegLCDTempHumComponent = seglcd_temphum_ns.class_("SegLCDTempHumComponent", cg.PollingComponent)
+SegLCDTempHumComponent = seglcd_temphum_ns.class_(
+    "SegLCDTempHumComponent", cg.PollingComponent, i2c.I2CDevice
+)
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -39,6 +41,7 @@ async def to_code(config):
         config[CONF_SUBADDRESS],
     )
     await cg.register_component(var, config)
+    await i2c.register_i2c_device(var, config)
 
     temperature = await cg.get_variable(config[CONF_TEMPERATURE])
     cg.add(var.set_temperature_sensor(temperature))

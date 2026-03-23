@@ -14,11 +14,15 @@ SegLCDTempHumComponent::SegLCDTempHumComponent(uint8_t address, uint8_t subaddre
     : address_(address), subaddress_(subaddress), lcd_(Wire, address, subaddress) {}
 
 void SegLCDTempHumComponent::setup() {
+  ESP_LOGCONFIG(TAG, "Initializing SegLCD TempHum display");
   this->lcd_.init();
   this->render_();
 }
 
-void SegLCDTempHumComponent::update() { this->render_(); }
+void SegLCDTempHumComponent::update() {
+  ESP_LOGV(TAG, "Refreshing display");
+  this->render_();
+}
 
 void SegLCDTempHumComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "SegLCD TempHum");
