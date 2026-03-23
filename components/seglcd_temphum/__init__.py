@@ -57,4 +57,5 @@ async def to_code(config):
     cg.add(var.set_show_celsius(config[CONF_SHOW_CELSIUS]))
     cg.add(var.set_show_percent(config[CONF_SHOW_PERCENT]))
 
+    cg.add_library("Wire", None)
     cg.add_library("https://github.com/petrkr/SegLCDLib.git", None)
