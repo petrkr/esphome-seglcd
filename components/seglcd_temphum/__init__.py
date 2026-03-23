@@ -1,9 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, sensor
-from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_SCL, CONF_SDA, CONF_TEMPERATURE
-
-DEPENDENCIES = ["i2c"]
+from esphome.components import sensor
+from esphome.const import CONF_ADDRESS, CONF_ID, CONF_HUMIDITY, CONF_SCL, CONF_SDA, CONF_TEMPERATURE
 
 CONF_BATTERY_LEVEL = "battery_level"
 CONF_SIGNAL_LEVEL = "signal_level"
@@ -12,14 +10,13 @@ CONF_SHOW_PERCENT = "show_percent"
 CONF_SUBADDRESS = "subaddress"
 
 seglcd_temphum_ns = cg.esphome_ns.namespace("seglcd_temphum")
-SegLCDTempHumComponent = seglcd_temphum_ns.class_(
-    "SegLCDTempHumComponent", cg.PollingComponent, i2c.I2CDevice
-)
+SegLCDTempHumComponent = seglcd_temphum_ns.class_("SegLCDTempHumComponent", cg.PollingComponent)
 
 CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SegLCDTempHumComponent),
+            cv.Optional(CONF_ADDRESS, default=0x38): cv.int_range(min=0x00, max=0x7F),
             cv.Required(CONF_TEMPERATURE): cv.use_id(sensor.Sensor),
             cv.Required(CONF_HUMIDITY): cv.use_id(sensor.Sensor),
             cv.Optional(CONF_BATTERY_LEVEL): cv.use_id(sensor.Sensor),
@@ -32,20 +29,18 @@ CONFIG_SCHEMA = (
         }
     )
     .extend(cv.polling_component_schema("10s"))
-    .extend(i2c.i2c_device_schema(0x38))
 )
 
 
 async def to_code(config):
     var = cg.new_Pvariable(
         config[CONF_ID],
-        config[i2c.CONF_ADDRESS],
+        config[CONF_ADDRESS],
         config[CONF_SUBADDRESS],
         config[CONF_SDA],
         config[CONF_SCL],
     )
     await cg.register_component(var, config)
-    await i2c.register_i2c_device(var, config)
 
     temperature = await cg.get_variable(config[CONF_TEMPERATURE])
     cg.add(var.set_temperature_sensor(temperature))

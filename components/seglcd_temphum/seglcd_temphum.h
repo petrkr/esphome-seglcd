@@ -2,7 +2,6 @@
 
 #include <Wire.h>
 
-#include "esphome/components/i2c/i2c.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/core/component.h"
 #include "SegLCD_PCF85176_TempHum.h"
@@ -10,7 +9,7 @@
 namespace esphome {
 namespace seglcd_temphum {
 
-class SegLCDTempHumComponent : public PollingComponent, public i2c::I2CDevice {
+class SegLCDTempHumComponent : public PollingComponent {
  public:
   SegLCDTempHumComponent(uint8_t address, uint8_t subaddress, uint8_t sda_pin, uint8_t scl_pin);
 

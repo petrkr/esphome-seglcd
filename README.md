@@ -20,11 +20,6 @@ external_components:
       type: local
       path: .
 
-i2c:
-  sda: GPIO21
-  scl: GPIO22
-  scan: true
-
 sensor:
   - platform: bme280_i2c
     temperature:
@@ -44,6 +39,8 @@ sensor:
 seglcd_temphum:
   sda: GPIO21
   scl: GPIO22
+  address: 0x38
+  subaddress: 0
   temperature: room_temperature
   humidity: room_humidity
   battery_level: display_battery_level
@@ -54,5 +51,5 @@ seglcd_temphum:
 ```
 
 Notes:
-- this PoC initializes Arduino `Wire` directly from `sda`/`scl` configured on the component
+- this PoC uses Arduino `Wire` directly and does not use ESPHome `i2c:` for the display bus
 - intended as the first external-components prototype before upstreaming
