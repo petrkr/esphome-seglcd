@@ -1,23 +1,23 @@
 #pragma once
 
-#include <Wire.h>
-
+#include "esphome/components/i2c/i2c.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/core/component.h"
-#include "SegTransport.h"
 #include "SegLCD_PCF85176_TempHum.h"
+#include "segtransport_i2c_esphome.h"
 
 namespace esphome {
 namespace seglcd_temphum {
 
 class SegLCDTempHumComponent : public PollingComponent {
  public:
-  SegLCDTempHumComponent(uint8_t address, uint8_t subaddress, uint8_t sda_pin, uint8_t scl_pin);
+  SegLCDTempHumComponent(uint8_t address, uint8_t subaddress);
 
   void setup() override;
   void update() override;
   void dump_config() override;
   float get_setup_priority() const override;
+  void set_i2c_bus(i2c::I2CBus *bus) { this->bus_.set_i2c_bus(bus); }
 
   void set_temperature_sensor(sensor::Sensor *sensor) { this->temperature_sensor_ = sensor; }
   void set_humidity_sensor(sensor::Sensor *sensor) { this->humidity_sensor_ = sensor; }
@@ -47,9 +47,7 @@ class SegLCDTempHumComponent : public PollingComponent {
 
   uint8_t address_;
   uint8_t subaddress_;
-  uint8_t sda_pin_;
-  uint8_t scl_pin_;
-  SegTransportI2CArduino bus_;
+  SegTransportI2CESPHome bus_;
   SegLCD_PCF85176_TempHumidity lcd_;
 };
 

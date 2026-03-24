@@ -1,7 +1,9 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor
-from esphome.const import CONF_ADDRESS, CONF_ID, CONF_HUMIDITY, CONF_SCL, CONF_SDA, CONF_TEMPERATURE
+from esphome.components import i2c, sensor
+from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE
+
+DEPENDENCIES = ["i2c"]
 
 CONF_BATTERY_LEVEL = "battery_level"
 CONF_SIGNAL_LEVEL = "signal_level"
@@ -16,7 +18,6 @@ CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SegLCDTempHumComponent),
-            cv.Optional(CONF_ADDRESS, default=0x38): cv.int_range(min=0x00, max=0x7F),
             cv.Required(CONF_TEMPERATURE): cv.use_id(sensor.Sensor),
             cv.Required(CONF_HUMIDITY): cv.use_id(sensor.Sensor),
             cv.Optional(CONF_BATTERY_LEVEL): cv.use_id(sensor.Sensor),
@@ -24,23 +25,23 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SHOW_CELSIUS, default=True): cv.boolean,
             cv.Optional(CONF_SHOW_PERCENT, default=True): cv.boolean,
             cv.Optional(CONF_SUBADDRESS, default=0): cv.int_range(min=0, max=7),
-            cv.Required(CONF_SDA): cv.int_range(min=0, max=48),
-            cv.Required(CONF_SCL): cv.int_range(min=0, max=48),
         }
     )
     .extend(cv.polling_component_schema("10s"))
+    .extend(i2c.i2c_device_schema(0x38))
 )
 
 
 async def to_code(config):
     var = cg.new_Pvariable(
         config[CONF_ID],
-        config[CONF_ADDRESS],
+        config[i2c.CONF_ADDRESS],
         config[CONF_SUBADDRESS],
-        config[CONF_SDA],
-        config[CONF_SCL],
     )
     await cg.register_component(var, config)
+
+    bus = await cg.get_variable(config[i2c.CONF_I2C_ID])
+    cg.add(var.set_i2c_bus(bus))
 
     temperature = await cg.get_variable(config[CONF_TEMPERATURE])
     cg.add(var.set_temperature_sensor(temperature))
@@ -59,5 +60,4 @@ async def to_code(config):
     cg.add(var.set_show_celsius(config[CONF_SHOW_CELSIUS]))
     cg.add(var.set_show_percent(config[CONF_SHOW_PERCENT]))
 
-    cg.add_library("Wire", None)
     cg.add_library("https://github.com/petrkr/SegLCDLib.git#a53ea3394b5cb5746d289159de1a925ad5904fff", None)

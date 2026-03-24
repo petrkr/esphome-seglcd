@@ -1,6 +1,6 @@
 # ESPHome - SegLCD
 
-Integration of SegLCDLib to ESPHome
+Integration of SegLCDLib to ESPHome.
 
 First target:
 - `seglcd_temphum`
@@ -11,6 +11,7 @@ Status:
 - base PoC structure
 - external component layout
 - first fixed-purpose component for temperature/humidity display
+- custom ESPHome I2C transport for SegLCDLib
 
 Example:
 
@@ -19,6 +20,12 @@ external_components:
   - source:
       type: local
       path: .
+
+i2c:
+  id: bus_a
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
 
 sensor:
   - platform: bme280_i2c
@@ -37,8 +44,7 @@ sensor:
     lambda: return 4;
 
 seglcd_temphum:
-  sda: GPIO21
-  scl: GPIO22
+  i2c_id: bus_a
   address: 0x38
   subaddress: 0
   temperature: room_temperature
@@ -51,5 +57,5 @@ seglcd_temphum:
 ```
 
 Notes:
-- this PoC uses Arduino `Wire` directly and does not use ESPHome `i2c:` for the display bus
+- this PoC uses ESPHome `i2c_id`
 - intended as the first external-components prototype before upstreaming
