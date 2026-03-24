@@ -1,10 +1,10 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, number, sensor, switch
+from esphome.components import i2c, number, sensor, switch, text
 from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE
 
-DEPENDENCIES = ["i2c"]
-AUTO_LOAD = ["sensor", "number", "switch"]
+DEPENDENCIES = ["i2c", "seglcd_transport"]
+AUTO_LOAD = ["sensor", "number", "switch", "text"]
 
 CONF_BATTERY_LEVEL = "battery_level"
 CONF_SIGNAL_LEVEL = "signal_level"
@@ -13,6 +13,8 @@ CONF_SHOW_PERCENT = "show_percent"
 CONF_SUBADDRESS = "subaddress"
 CONF_TEMPERATURE_NUMBER = "temperature_number"
 CONF_HUMIDITY_NUMBER = "humidity_number"
+CONF_TEMPERATURE_TEXT = "temperature_text"
+CONF_HUMIDITY_TEXT = "humidity_text"
 CONF_BATTERY_LEVEL_NUMBER = "battery_level_number"
 CONF_SIGNAL_LEVEL_NUMBER = "signal_level_number"
 CONF_CELSIUS_SWITCH = "celsius_switch"
@@ -24,6 +26,8 @@ SegLCDTempHumTemperatureNumber = seglcd_temphum_ns.class_("SegLCDTempHumTemperat
 SegLCDTempHumHumidityNumber = seglcd_temphum_ns.class_("SegLCDTempHumHumidityNumber", number.Number)
 SegLCDTempHumBatteryLevelNumber = seglcd_temphum_ns.class_("SegLCDTempHumBatteryLevelNumber", number.Number)
 SegLCDTempHumSignalLevelNumber = seglcd_temphum_ns.class_("SegLCDTempHumSignalLevelNumber", number.Number)
+SegLCDTempHumTemperatureText = seglcd_temphum_ns.class_("SegLCDTempHumTemperatureText", text.Text)
+SegLCDTempHumHumidityText = seglcd_temphum_ns.class_("SegLCDTempHumHumidityText", text.Text)
 SegLCDTempHumCelsiusSwitch = seglcd_temphum_ns.class_("SegLCDTempHumCelsiusSwitch", switch.Switch)
 SegLCDTempHumPercentSwitch = seglcd_temphum_ns.class_("SegLCDTempHumPercentSwitch", switch.Switch)
 
@@ -43,6 +47,12 @@ CONFIG_SCHEMA = (
             ),
             cv.Optional(CONF_HUMIDITY_NUMBER, default={"name": "LCD Humidity"}): number.number_schema(
                 SegLCDTempHumHumidityNumber, icon="mdi:water-percent"
+            ),
+            cv.Optional(CONF_TEMPERATURE_TEXT): text.text_schema(
+                SegLCDTempHumTemperatureText, icon="mdi:thermometer"
+            ),
+            cv.Optional(CONF_HUMIDITY_TEXT): text.text_schema(
+                SegLCDTempHumHumidityText, icon="mdi:water-percent"
             ),
             cv.Optional(CONF_BATTERY_LEVEL_NUMBER, default={"name": "LCD Battery"}): number.number_schema(
                 SegLCDTempHumBatteryLevelNumber, icon="mdi:battery"
@@ -105,6 +115,16 @@ async def to_code(config):
     await cg.register_parented(humidity_number, config[CONF_ID])
     cg.add(var.set_humidity_number(humidity_number))
 
+    if CONF_TEMPERATURE_TEXT in config:
+        temperature_text = await text.new_text(config[CONF_TEMPERATURE_TEXT])
+        await cg.register_parented(temperature_text, config[CONF_ID])
+        cg.add(var.set_temperature_text(temperature_text))
+
+    if CONF_HUMIDITY_TEXT in config:
+        humidity_text = await text.new_text(config[CONF_HUMIDITY_TEXT])
+        await cg.register_parented(humidity_text, config[CONF_ID])
+        cg.add(var.set_humidity_text(humidity_text))
+
     battery_level_number = await number.new_number(
         config[CONF_BATTERY_LEVEL_NUMBER], min_value=0, max_value=4, step=1
     )
@@ -126,4 +146,4 @@ async def to_code(config):
     cg.add(var.set_percent_switch(percent_switch))
 
     cg.add_library("Wire", None)
-    cg.add_library("https://github.com/petrkr/SegLCDLib.git#0bb603a27d74507608aa63945588ea3f4753d005", None)
+    cg.add_library("https://github.com/petrkr/SegLCDLib.git#develop", None)

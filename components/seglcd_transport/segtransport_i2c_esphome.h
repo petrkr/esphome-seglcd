@@ -4,7 +4,7 @@
 #include "esphome/components/i2c/i2c.h"
 
 namespace esphome {
-namespace seglcd_temphum {
+namespace seglcd_transport {
 
 class SegTransportI2CESPHome : public SegTransportI2C {
  public:
@@ -18,5 +18,5 @@ class SegTransportI2CESPHome : public SegTransportI2C {
   i2c::I2CBus *bus_{nullptr};
 };
 
-}  // namespace seglcd_temphum
+}  // namespace seglcd_transport
 }  // namespace esphome
