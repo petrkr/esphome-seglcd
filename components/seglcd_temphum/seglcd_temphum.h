@@ -4,6 +4,7 @@
 
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/core/component.h"
+#include "SegTransport.h"
 #include "SegLCD_PCF85176_TempHum.h"
 
 namespace esphome {
@@ -48,6 +49,7 @@ class SegLCDTempHumComponent : public PollingComponent {
   uint8_t subaddress_;
   uint8_t sda_pin_;
   uint8_t scl_pin_;
+  SegTransportI2CArduino bus_;
   SegLCD_PCF85176_TempHumidity lcd_;
 };
 

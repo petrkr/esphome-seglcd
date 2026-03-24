@@ -15,7 +15,8 @@ SegLCDTempHumComponent::SegLCDTempHumComponent(uint8_t address, uint8_t subaddre
       subaddress_(subaddress),
       sda_pin_(sda_pin),
       scl_pin_(scl_pin),
-      lcd_(Wire, address, subaddress) {}
+      bus_(Wire),
+      lcd_(bus_, address, subaddress) {}
 
 void SegLCDTempHumComponent::setup() {
   ESP_LOGCONFIG(TAG, "Initializing SegLCD TempHum display");
