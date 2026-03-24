@@ -23,8 +23,16 @@ class SegLCDTempHumComponent : public PollingComponent {
   void set_humidity_sensor(sensor::Sensor *sensor) { this->humidity_sensor_ = sensor; }
   void set_battery_level_sensor(sensor::Sensor *sensor) { this->battery_level_sensor_ = sensor; }
   void set_signal_level_sensor(sensor::Sensor *sensor) { this->signal_level_sensor_ = sensor; }
-  void set_show_celsius(bool show_celsius) { this->show_celsius_ = show_celsius; }
-  void set_show_percent(bool show_percent) { this->show_percent_ = show_percent; }
+  void set_show_celsius(bool show_celsius);
+  void set_show_percent(bool show_percent);
+  void set_temperature_value(float value);
+  void set_humidity_value(float value);
+  void set_battery_level_value(uint8_t value);
+  void set_signal_level_value(uint8_t value);
+  void clear_temperature_value();
+  void clear_humidity_value();
+  void clear_battery_level_value();
+  void clear_signal_level_value();
 
  protected:
   void render_();
@@ -34,6 +42,11 @@ class SegLCDTempHumComponent : public PollingComponent {
   void write_battery_level_();
   void write_signal_level_();
   int clamp_level_(sensor::Sensor *source) const;
+  int clamp_level_(int value) const;
+  bool get_temperature_value_(float &value) const;
+  bool get_humidity_value_(float &value) const;
+  bool get_battery_level_value_(uint8_t &value) const;
+  bool get_signal_level_value_(uint8_t &value) const;
   void format_temperature_(char *buffer, size_t buffer_size, float value) const;
   void format_humidity_(char *buffer, size_t buffer_size, float value) const;
 
@@ -44,6 +57,14 @@ class SegLCDTempHumComponent : public PollingComponent {
 
   bool show_celsius_{true};
   bool show_percent_{true};
+  bool has_manual_temperature_{false};
+  bool has_manual_humidity_{false};
+  bool has_manual_battery_level_{false};
+  bool has_manual_signal_level_{false};
+  float manual_temperature_{0.0f};
+  float manual_humidity_{0.0f};
+  uint8_t manual_battery_level_{0};
+  uint8_t manual_signal_level_{0};
 
   uint8_t address_;
   uint8_t subaddress_;

@@ -44,6 +44,7 @@ sensor:
     lambda: return 4;
 
 seglcd_temphum:
+  id: my_lcd
   i2c_id: bus_a
   address: 0x38
   subaddress: 0
@@ -54,6 +55,68 @@ seglcd_temphum:
   show_celsius: true
   show_percent: true
   update_interval: 10s
+
+number:
+  - platform: template
+    name: LCD Temperature
+    min_value: -40
+    max_value: 99.9
+    step: 0.1
+    optimistic: true
+    set_action:
+      - lambda: |-
+          id(my_lcd).set_temperature_value(x);
+
+  - platform: template
+    name: LCD Humidity
+    min_value: 0
+    max_value: 100
+    step: 1
+    optimistic: true
+    set_action:
+      - lambda: |-
+          id(my_lcd).set_humidity_value(x);
+
+  - platform: template
+    name: LCD Battery
+    min_value: 0
+    max_value: 4
+    step: 1
+    optimistic: true
+    set_action:
+      - lambda: |-
+          id(my_lcd).set_battery_level_value((uint8_t) x);
+
+  - platform: template
+    name: LCD Signal
+    min_value: 0
+    max_value: 4
+    step: 1
+    optimistic: true
+    set_action:
+      - lambda: |-
+          id(my_lcd).set_signal_level_value((uint8_t) x);
+
+switch:
+  - platform: template
+    name: LCD Celsius Flag
+    optimistic: true
+    turn_on_action:
+      - lambda: |-
+          id(my_lcd).set_show_celsius(true);
+    turn_off_action:
+      - lambda: |-
+          id(my_lcd).set_show_celsius(false);
+
+  - platform: template
+    name: LCD Percent Flag
+    optimistic: true
+    turn_on_action:
+      - lambda: |-
+          id(my_lcd).set_show_percent(true);
+    turn_off_action:
+      - lambda: |-
+          id(my_lcd).set_show_percent(false);
 ```
 
 Notes:
