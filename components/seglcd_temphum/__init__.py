@@ -146,4 +146,4 @@ async def to_code(config):
     await cg.register_parented(percent_switch, config[CONF_ID])
     cg.add(var.set_percent_switch(percent_switch))
 
-    cg.add_library("https://github.com/petrkr/SegLCDLib.git#develop", None)
+    cg.add_library("https://github.com/petrkr/SegLCDLib.git#770366c79ed4e792ff098c6279c0850f452ba13a", None)
