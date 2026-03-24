@@ -25,14 +25,14 @@ void SegLCDTempHumComponent::set_show_celsius(bool v) {
   this->show_celsius_ = v;
   if (this->celsius_switch_ != nullptr)
     this->celsius_switch_->publish_state(v);
-  this->apply_labels_();
+  this->apply_units_();
 }
 
 void SegLCDTempHumComponent::set_show_percent(bool v) {
   this->show_percent_ = v;
   if (this->percent_switch_ != nullptr)
     this->percent_switch_->publish_state(v);
-  this->apply_labels_();
+  this->apply_units_();
 }
 
 void SegLCDTempHumComponent::set_field_number(DisplayField &field, float value) {
@@ -102,25 +102,25 @@ float SegLCDTempHumComponent::get_setup_priority() const { return setup_priority
 void SegLCDTempHumComponent::render_() {
   if (this->lcd_ == nullptr)
     return;
-  this->apply_labels_();
+  this->apply_units_();
   this->write_display_field_(this->temp_field_);
   this->write_display_field_(this->hum_field_);
   this->write_battery_level_();
   this->write_signal_level_();
 }
 
-void SegLCDTempHumComponent::apply_labels_() {
+void SegLCDTempHumComponent::apply_units_() {
   if (this->lcd_ == nullptr)
     return;
-  uint8_t all_labels = SegLCD_PCF85176_TempHumidity::LABEL_DEGREE_C
-                      | SegLCD_PCF85176_TempHumidity::LABEL_PROC;
+  uint8_t all_units = SegLCD_PCF85176_TempHumidity::UNIT_DEGREE_C
+                     | SegLCD_PCF85176_TempHumidity::UNIT_PERCENT;
   uint8_t set = 0;
   if (this->show_celsius_)
-    set |= SegLCD_PCF85176_TempHumidity::LABEL_DEGREE_C;
+    set |= SegLCD_PCF85176_TempHumidity::UNIT_DEGREE_C;
   if (this->show_percent_)
-    set |= SegLCD_PCF85176_TempHumidity::LABEL_PROC;
-  this->lcd_->clearLabels(all_labels & ~set);
-  this->lcd_->setLabels(set);
+    set |= SegLCD_PCF85176_TempHumidity::UNIT_PERCENT;
+  this->lcd_->clearUnits(all_units & ~set);
+  this->lcd_->setUnits(set);
 }
 
 void SegLCDTempHumComponent::write_display_field_(DisplayField &field) {

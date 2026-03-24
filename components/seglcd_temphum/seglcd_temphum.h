@@ -76,7 +76,7 @@ class SegLCDTempHumComponent : public PollingComponent {
 
  protected:
   void render_();
-  void apply_labels_();
+  void apply_units_();
   void write_display_field_(DisplayField &field);
   void write_number_right_aligned_(uint8_t row, uint8_t width, const char *formatted);
   void write_text_(uint8_t row, const std::string &text);
