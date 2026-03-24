@@ -54,10 +54,10 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_HUMIDITY_NUMBER, default={"name": "LCD Humidity"}): number.number_schema(
                 SegLCDTempHumHumidityNumber, icon="mdi:water-percent"
             ),
-            cv.Optional(CONF_TEMPERATURE_TEXT): text.text_schema(
+            cv.Optional(CONF_TEMPERATURE_TEXT, default={"name": "LCD Temperature Text"}): text.text_schema(
                 SegLCDTempHumTemperatureText, icon="mdi:thermometer", mode="text"
             ),
-            cv.Optional(CONF_HUMIDITY_TEXT): text.text_schema(
+            cv.Optional(CONF_HUMIDITY_TEXT, default={"name": "LCD Humidity Text"}): text.text_schema(
                 SegLCDTempHumHumidityText, icon="mdi:water-percent", mode="text"
             ),
             cv.Optional(CONF_BATTERY_LEVEL_NUMBER, default={"name": "LCD Battery"}): number.number_schema(
@@ -118,15 +118,13 @@ async def to_code(config):
     await cg.register_parented(humidity_number, config[CONF_ID])
     cg.add(var.set_humidity_number(humidity_number))
 
-    if CONF_TEMPERATURE_TEXT in config:
-        temperature_text = await text.new_text(config[CONF_TEMPERATURE_TEXT], min_length=0, max_length=5)
-        await cg.register_parented(temperature_text, config[CONF_ID])
-        cg.add(var.set_temperature_text(temperature_text))
+    temperature_text = await text.new_text(config[CONF_TEMPERATURE_TEXT], min_length=0, max_length=5)
+    await cg.register_parented(temperature_text, config[CONF_ID])
+    cg.add(var.set_temperature_text(temperature_text))
 
-    if CONF_HUMIDITY_TEXT in config:
-        humidity_text = await text.new_text(config[CONF_HUMIDITY_TEXT], min_length=0, max_length=3)
-        await cg.register_parented(humidity_text, config[CONF_ID])
-        cg.add(var.set_humidity_text(humidity_text))
+    humidity_text = await text.new_text(config[CONF_HUMIDITY_TEXT], min_length=0, max_length=3)
+    await cg.register_parented(humidity_text, config[CONF_ID])
+    cg.add(var.set_humidity_text(humidity_text))
 
     battery_level_number = await number.new_number(
         config[CONF_BATTERY_LEVEL_NUMBER], min_value=0, max_value=4, step=1
