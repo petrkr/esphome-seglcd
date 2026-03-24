@@ -107,7 +107,7 @@ async def to_code(config):
     cg.add(var.set_show_percent(config[CONF_SHOW_PERCENT]))
 
     temperature_number = await number.new_number(
-        config[CONF_TEMPERATURE_NUMBER], min_value=-40, max_value=99.9, step=0.1
+        config[CONF_TEMPERATURE_NUMBER], min_value=-9999, max_value=9999, step=0.1
     )
     await cg.register_parented(temperature_number, config[CONF_ID])
     cg.add(var.set_temperature_number(temperature_number))

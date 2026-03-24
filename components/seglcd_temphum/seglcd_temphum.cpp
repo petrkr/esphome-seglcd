@@ -25,42 +25,42 @@ void SegLCDTempHumComponent::set_show_celsius(bool v) {
   this->show_celsius_ = v;
   if (this->celsius_switch_ != nullptr)
     this->celsius_switch_->publish_state(v);
-  this->render_();
+  this->apply_labels_();
 }
 
 void SegLCDTempHumComponent::set_show_percent(bool v) {
   this->show_percent_ = v;
   if (this->percent_switch_ != nullptr)
     this->percent_switch_->publish_state(v);
-  this->render_();
+  this->apply_labels_();
 }
 
 void SegLCDTempHumComponent::set_field_number(DisplayField &field, float value) {
   field.number.set(value);
   if (field.number_entity != nullptr)
     field.number_entity->publish_state(value);
-  this->render_();
+  this->write_display_field_(field);
 }
 
 void SegLCDTempHumComponent::set_field_text(DisplayField &field, const std::string &value) {
   field.text.set(value);
   if (field.text_entity != nullptr)
     field.text_entity->publish_state(value);
-  this->render_();
+  this->write_display_field_(field);
 }
 
 void SegLCDTempHumComponent::set_battery_level_value(uint8_t value) {
   this->manual_battery_.set(this->clamp_level_(value));
   if (this->battery_level_number_ != nullptr)
     this->battery_level_number_->publish_state(this->manual_battery_.value);
-  this->render_();
+  this->write_battery_level_();
 }
 
 void SegLCDTempHumComponent::set_signal_level_value(uint8_t value) {
   this->manual_signal_.set(this->clamp_level_(value));
   if (this->signal_level_number_ != nullptr)
     this->signal_level_number_->publish_state(this->manual_signal_.value);
-  this->render_();
+  this->write_signal_level_();
 }
 
 void SegLCDTempHumComponent::setup() {
@@ -100,7 +100,6 @@ float SegLCDTempHumComponent::get_setup_priority() const { return setup_priority
 void SegLCDTempHumComponent::render_() {
   if (this->lcd_ == nullptr)
     return;
-  this->lcd_->clear();
   this->apply_labels_();
   this->write_display_field_(this->temp_field_);
   this->write_display_field_(this->hum_field_);
@@ -109,6 +108,8 @@ void SegLCDTempHumComponent::render_() {
 }
 
 void SegLCDTempHumComponent::apply_labels_() {
+  if (this->lcd_ == nullptr)
+    return;
   uint8_t labels = 0;
   if (this->show_celsius_)
     labels |= SegLCD_PCF85176_TempHumidity::LABEL_DEGREE_C;
@@ -118,6 +119,8 @@ void SegLCDTempHumComponent::apply_labels_() {
 }
 
 void SegLCDTempHumComponent::write_display_field_(DisplayField &field) {
+  if (this->lcd_ == nullptr)
+    return;
   // Priority: text > number > sensor
   if (field.text.active) {
     this->write_text_(field.row, field.text.value);
@@ -167,6 +170,8 @@ void SegLCDTempHumComponent::write_text_(uint8_t row, const std::string &text) {
 }
 
 void SegLCDTempHumComponent::write_battery_level_() {
+  if (this->lcd_ == nullptr)
+    return;
   uint8_t level;
   if (this->manual_battery_.active) {
     level = this->manual_battery_.value;
@@ -179,6 +184,8 @@ void SegLCDTempHumComponent::write_battery_level_() {
 }
 
 void SegLCDTempHumComponent::write_signal_level_() {
+  if (this->lcd_ == nullptr)
+    return;
   uint8_t level;
   if (this->manual_signal_.active) {
     level = this->manual_signal_.value;
