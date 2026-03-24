@@ -4,6 +4,7 @@ from esphome.components import i2c, sensor
 from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE
 
 DEPENDENCIES = ["i2c"]
+AUTO_LOAD = ["sensor"]
 
 CONF_BATTERY_LEVEL = "battery_level"
 CONF_SIGNAL_LEVEL = "signal_level"
