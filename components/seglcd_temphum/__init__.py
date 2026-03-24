@@ -60,4 +60,4 @@ async def to_code(config):
     cg.add(var.set_show_percent(config[CONF_SHOW_PERCENT]))
 
     cg.add_library("Wire", None)
-    cg.add_library("https://github.com/petrkr/SegLCDLib.git", None)
+    cg.add_library("https://github.com/petrkr/SegLCDLib.git#a53ea3394b5cb5746d289159de1a925ad5904fff", None)
