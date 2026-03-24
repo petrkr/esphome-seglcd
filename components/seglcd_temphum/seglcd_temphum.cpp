@@ -11,12 +11,14 @@ namespace seglcd_temphum {
 
 static const char *const TAG = "seglcd_temphum";
 
-SegLCDTempHumComponent::SegLCDTempHumComponent(uint8_t address, uint8_t subaddress)
-    : address_(address), subaddress_(subaddress), lcd_(bus_, address, subaddress) {
+SegLCDTempHumComponent::SegLCDTempHumComponent(uint8_t subaddress)
+    : subaddress_(subaddress) {
   this->temp_field_.row = 0;
   this->temp_field_.width = 4;
+  this->temp_field_.decimals = 1;
   this->hum_field_.row = 1;
   this->hum_field_.width = 3;
+  this->hum_field_.decimals = 1;
 }
 
 void SegLCDTempHumComponent::set_show_celsius(bool v) {
@@ -63,12 +65,19 @@ void SegLCDTempHumComponent::set_signal_level_value(uint8_t value) {
 
 void SegLCDTempHumComponent::setup() {
   ESP_LOGCONFIG(TAG, "Initializing SegLCD TempHum display");
-  if (!this->bus_.has_i2c_bus()) {
-    ESP_LOGE(TAG, "No ESPHome I2C bus configured");
+  if (this->transport_ == nullptr) {
+    ESP_LOGE(TAG, "No transport configured");
     this->mark_failed();
     return;
   }
-  this->lcd_.init();
+  if (!this->transport_->has_i2c_bus()) {
+    ESP_LOGE(TAG, "Transport has no I2C bus");
+    this->mark_failed();
+    return;
+  }
+  this->lcd_ = new SegLCD_PCF85176_TempHumidity(
+      this->transport_->get_bus(), this->transport_->get_address(), this->subaddress_);
+  this->lcd_->init();
   this->render_();
 }
 
@@ -79,7 +88,8 @@ void SegLCDTempHumComponent::update() {
 
 void SegLCDTempHumComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "SegLCD TempHum");
-  ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
+  if (this->transport_ != nullptr)
+    ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->transport_->get_address());
   ESP_LOGCONFIG(TAG, "  Subaddress: %u", this->subaddress_);
   ESP_LOGCONFIG(TAG, "  Show Celsius: %s", this->show_celsius_ ? "true" : "false");
   ESP_LOGCONFIG(TAG, "  Show Percent: %s", this->show_percent_ ? "true" : "false");
@@ -88,7 +98,9 @@ void SegLCDTempHumComponent::dump_config() {
 float SegLCDTempHumComponent::get_setup_priority() const { return setup_priority::DATA; }
 
 void SegLCDTempHumComponent::render_() {
-  this->lcd_.clear();
+  if (this->lcd_ == nullptr)
+    return;
+  this->lcd_->clear();
   this->apply_labels_();
   this->write_display_field_(this->temp_field_);
   this->write_display_field_(this->hum_field_);
@@ -102,38 +114,29 @@ void SegLCDTempHumComponent::apply_labels_() {
     labels |= SegLCD_PCF85176_TempHumidity::LABEL_DEGREE_C;
   if (this->show_percent_)
     labels |= SegLCD_PCF85176_TempHumidity::LABEL_PROC;
-  this->lcd_.setLabels(labels);
+  this->lcd_->setLabels(labels);
 }
 
 void SegLCDTempHumComponent::write_display_field_(DisplayField &field) {
-  // Priority: last manual write wins — text over number over sensor
-  // Text entity has highest priority if active
+  // Priority: text > number > sensor
   if (field.text.active) {
     this->write_text_(field.row, field.text.value);
     return;
   }
 
-  // Number entity override
   if (field.number.active) {
-    char buf[8];
-    if (field.row == 0)
-      this->format_temperature_(buf, sizeof(buf), field.number.value);
-    else
-      this->format_humidity_(buf, sizeof(buf), field.number.value);
+    char buf[16];
+    this->format_value_(buf, sizeof(buf), field.number.value, field.width, field.decimals);
     if (field.number_entity != nullptr)
       field.number_entity->publish_state(field.number.value);
     this->write_number_right_aligned_(field.row, field.width, buf);
     return;
   }
 
-  // Sensor fallback
   if (field.sensor != nullptr && field.sensor->has_state() && !std::isnan(field.sensor->state)) {
     float value = field.sensor->state;
-    char buf[8];
-    if (field.row == 0)
-      this->format_temperature_(buf, sizeof(buf), value);
-    else
-      this->format_humidity_(buf, sizeof(buf), value);
+    char buf[16];
+    this->format_value_(buf, sizeof(buf), value, field.width, field.decimals);
     if (field.number_entity != nullptr)
       field.number_entity->publish_state(value);
     this->write_number_right_aligned_(field.row, field.width, buf);
@@ -141,7 +144,6 @@ void SegLCDTempHumComponent::write_display_field_(DisplayField &field) {
 }
 
 void SegLCDTempHumComponent::write_number_right_aligned_(uint8_t row, uint8_t width, const char *formatted) {
-  // Count display characters (digits + minus, excluding dot)
   size_t len = std::strlen(formatted);
   size_t display_chars = 0;
   for (size_t i = 0; i < len; i++) {
@@ -149,21 +151,19 @@ void SegLCDTempHumComponent::write_number_right_aligned_(uint8_t row, uint8_t wi
       display_chars++;
   }
 
-  // For temp row (row 0): extra minus segment handled by lib, so effective width
-  // for padding is based on digit positions
   std::string padded;
   if (display_chars < width) {
     padded.append(width - display_chars, ' ');
   }
   padded.append(formatted);
 
-  this->lcd_.setCursor(row, 0);
-  this->lcd_.print(padded.c_str());
+  this->lcd_->setCursor(row, 0);
+  this->lcd_->print(padded.c_str());
 }
 
 void SegLCDTempHumComponent::write_text_(uint8_t row, const std::string &text) {
-  this->lcd_.setCursor(row, 0);
-  this->lcd_.print(text.c_str());
+  this->lcd_->setCursor(row, 0);
+  this->lcd_->print(text.c_str());
 }
 
 void SegLCDTempHumComponent::write_battery_level_() {
@@ -175,7 +175,7 @@ void SegLCDTempHumComponent::write_battery_level_() {
   }
   if (this->battery_level_number_ != nullptr)
     this->battery_level_number_->publish_state(level);
-  this->lcd_.setBatteryLevel(level);
+  this->lcd_->setBatteryLevel(level);
 }
 
 void SegLCDTempHumComponent::write_signal_level_() {
@@ -187,7 +187,7 @@ void SegLCDTempHumComponent::write_signal_level_() {
   }
   if (this->signal_level_number_ != nullptr)
     this->signal_level_number_->publish_state(level);
-  this->lcd_.setSignalLevel(level);
+  this->lcd_->setSignalLevel(level);
 }
 
 int SegLCDTempHumComponent::clamp_level_(sensor::Sensor *source) const {
@@ -202,30 +202,30 @@ int SegLCDTempHumComponent::clamp_level_(int value) const {
   return value;
 }
 
-void SegLCDTempHumComponent::format_temperature_(char *buffer, size_t buffer_size, float value) const {
+void SegLCDTempHumComponent::format_value_(char *buffer, size_t buffer_size, float value,
+                                            uint8_t width, uint8_t decimals) const {
   if (std::isnan(value)) {
     buffer[0] = '\0';
     return;
   }
 
-  const float abs_value = std::fabs(value);
-  if (abs_value < 100.0f) {
-    std::snprintf(buffer, buffer_size, "%.1f", value);
-  } else {
-    std::snprintf(buffer, buffer_size, "%.0f", value);
-  }
-}
+  // Format with requested decimals. Reduce only if it doesn't fit in width.
+  // "12.40" with decimals=2 stays "12.40", trailing zeros are preserved.
+  for (int d = decimals; d >= 0; d--) {
+    std::snprintf(buffer, buffer_size, "%.*f", d, value);
 
-void SegLCDTempHumComponent::format_humidity_(char *buffer, size_t buffer_size, float value) const {
-  if (std::isnan(value)) {
-    buffer[0] = '\0';
-    return;
+    // Count digit positions (everything except '.')
+    size_t digits = 0;
+    for (const char *p = buffer; *p; p++) {
+      if (*p != '.')
+        digits++;
+    }
+    if (digits <= width)
+      return;
   }
 
-  int rounded = static_cast<int>(std::lround(value));
-  if (rounded < 0) rounded = 0;
-  if (rounded > 100) rounded = 100;
-  std::snprintf(buffer, buffer_size, "%d", rounded);
+  // Still doesn't fit at 0 decimals — output as-is (integer)
+  std::snprintf(buffer, buffer_size, "%.0f", value);
 }
 
 }  // namespace seglcd_temphum

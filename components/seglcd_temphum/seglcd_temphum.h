@@ -1,6 +1,5 @@
 #pragma once
 
-#include "esphome/components/i2c/i2c.h"
 #include "esphome/components/number/number.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/switch/switch.h"
@@ -29,18 +28,22 @@ struct DisplayField {
   number::Number *number_entity{nullptr};
   text::Text *text_entity{nullptr};
   uint8_t row;
-  uint8_t width;  // digit positions (4 for temp, 3 for hum)
+  uint8_t width;     // digit positions (4 for temp, 3 for hum)
+  uint8_t decimals;  // max decimal places (user-configured)
 };
 
 class SegLCDTempHumComponent : public PollingComponent {
  public:
-  SegLCDTempHumComponent(uint8_t address, uint8_t subaddress);
+  SegLCDTempHumComponent(uint8_t subaddress);
 
   void setup() override;
   void update() override;
   void dump_config() override;
   float get_setup_priority() const override;
-  void set_i2c_bus(i2c::I2CBus *bus) { this->bus_.set_i2c_bus(bus); }
+
+  void set_transport(seglcd_transport::SegLCDTransport *transport) { this->transport_ = transport; }
+  void set_temperature_decimals(uint8_t d) { this->temp_field_.decimals = d; }
+  void set_humidity_decimals(uint8_t d) { this->hum_field_.decimals = d; }
 
   // Sensor inputs
   void set_temperature_sensor(sensor::Sensor *sensor) { this->temp_field_.sensor = sensor; }
@@ -81,8 +84,7 @@ class SegLCDTempHumComponent : public PollingComponent {
   void write_signal_level_();
   int clamp_level_(sensor::Sensor *source) const;
   int clamp_level_(int value) const;
-  void format_temperature_(char *buffer, size_t buffer_size, float value) const;
-  void format_humidity_(char *buffer, size_t buffer_size, float value) const;
+  void format_value_(char *buffer, size_t buffer_size, float value, uint8_t width, uint8_t decimals) const;
 
   DisplayField temp_field_{};
   DisplayField hum_field_{};
@@ -100,10 +102,9 @@ class SegLCDTempHumComponent : public PollingComponent {
   bool show_celsius_{true};
   bool show_percent_{true};
 
-  uint8_t address_;
   uint8_t subaddress_;
-  seglcd_transport::SegTransportI2CESPHome bus_;
-  SegLCD_PCF85176_TempHumidity lcd_;
+  seglcd_transport::SegLCDTransport *transport_{nullptr};
+  SegLCD_PCF85176_TempHumidity *lcd_{nullptr};
 };
 
 // --- Number entities ---
