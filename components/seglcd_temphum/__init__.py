@@ -1,19 +1,31 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, sensor
+from esphome.components import i2c, number, sensor, switch
 from esphome.const import CONF_ID, CONF_HUMIDITY, CONF_TEMPERATURE
 
 DEPENDENCIES = ["i2c"]
-AUTO_LOAD = ["sensor"]
+AUTO_LOAD = ["sensor", "number", "switch"]
 
 CONF_BATTERY_LEVEL = "battery_level"
 CONF_SIGNAL_LEVEL = "signal_level"
 CONF_SHOW_CELSIUS = "show_celsius"
 CONF_SHOW_PERCENT = "show_percent"
 CONF_SUBADDRESS = "subaddress"
+CONF_TEMPERATURE_NUMBER = "temperature_number"
+CONF_HUMIDITY_NUMBER = "humidity_number"
+CONF_BATTERY_LEVEL_NUMBER = "battery_level_number"
+CONF_SIGNAL_LEVEL_NUMBER = "signal_level_number"
+CONF_CELSIUS_SWITCH = "celsius_switch"
+CONF_PERCENT_SWITCH = "percent_switch"
 
 seglcd_temphum_ns = cg.esphome_ns.namespace("seglcd_temphum")
 SegLCDTempHumComponent = seglcd_temphum_ns.class_("SegLCDTempHumComponent", cg.PollingComponent)
+SegLCDTempHumTemperatureNumber = seglcd_temphum_ns.class_("SegLCDTempHumTemperatureNumber", number.Number)
+SegLCDTempHumHumidityNumber = seglcd_temphum_ns.class_("SegLCDTempHumHumidityNumber", number.Number)
+SegLCDTempHumBatteryLevelNumber = seglcd_temphum_ns.class_("SegLCDTempHumBatteryLevelNumber", number.Number)
+SegLCDTempHumSignalLevelNumber = seglcd_temphum_ns.class_("SegLCDTempHumSignalLevelNumber", number.Number)
+SegLCDTempHumCelsiusSwitch = seglcd_temphum_ns.class_("SegLCDTempHumCelsiusSwitch", switch.Switch)
+SegLCDTempHumPercentSwitch = seglcd_temphum_ns.class_("SegLCDTempHumPercentSwitch", switch.Switch)
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -26,6 +38,24 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SHOW_CELSIUS, default=False): cv.boolean,
             cv.Optional(CONF_SHOW_PERCENT, default=False): cv.boolean,
             cv.Optional(CONF_SUBADDRESS, default=0): cv.int_range(min=0, max=7),
+            cv.Optional(CONF_TEMPERATURE_NUMBER, default={"name": "LCD Temperature"}): number.number_schema(
+                SegLCDTempHumTemperatureNumber, icon="mdi:thermometer"
+            ),
+            cv.Optional(CONF_HUMIDITY_NUMBER, default={"name": "LCD Humidity"}): number.number_schema(
+                SegLCDTempHumHumidityNumber, icon="mdi:water-percent"
+            ),
+            cv.Optional(CONF_BATTERY_LEVEL_NUMBER, default={"name": "LCD Battery"}): number.number_schema(
+                SegLCDTempHumBatteryLevelNumber, icon="mdi:battery"
+            ),
+            cv.Optional(CONF_SIGNAL_LEVEL_NUMBER, default={"name": "LCD Signal"}): number.number_schema(
+                SegLCDTempHumSignalLevelNumber, icon="mdi:wifi"
+            ),
+            cv.Optional(CONF_CELSIUS_SWITCH, default={"name": "LCD Celsius Flag"}): switch.switch_schema(
+                SegLCDTempHumCelsiusSwitch, icon="mdi:temperature-celsius"
+            ),
+            cv.Optional(CONF_PERCENT_SWITCH, default={"name": "LCD Percent Flag"}): switch.switch_schema(
+                SegLCDTempHumPercentSwitch, icon="mdi:percent"
+            ),
         }
     )
     .extend(cv.polling_component_schema("10s"))
@@ -62,6 +92,38 @@ async def to_code(config):
 
     cg.add(var.set_show_celsius(config[CONF_SHOW_CELSIUS]))
     cg.add(var.set_show_percent(config[CONF_SHOW_PERCENT]))
+
+    temperature_number = await number.new_number(
+        config[CONF_TEMPERATURE_NUMBER], min_value=-40, max_value=99.9, step=0.1
+    )
+    await cg.register_parented(temperature_number, config[CONF_ID])
+    cg.add(var.set_temperature_number(temperature_number))
+
+    humidity_number = await number.new_number(
+        config[CONF_HUMIDITY_NUMBER], min_value=0, max_value=100, step=1
+    )
+    await cg.register_parented(humidity_number, config[CONF_ID])
+    cg.add(var.set_humidity_number(humidity_number))
+
+    battery_level_number = await number.new_number(
+        config[CONF_BATTERY_LEVEL_NUMBER], min_value=0, max_value=4, step=1
+    )
+    await cg.register_parented(battery_level_number, config[CONF_ID])
+    cg.add(var.set_battery_level_number(battery_level_number))
+
+    signal_level_number = await number.new_number(
+        config[CONF_SIGNAL_LEVEL_NUMBER], min_value=0, max_value=4, step=1
+    )
+    await cg.register_parented(signal_level_number, config[CONF_ID])
+    cg.add(var.set_signal_level_number(signal_level_number))
+
+    celsius_switch = await switch.new_switch(config[CONF_CELSIUS_SWITCH])
+    await cg.register_parented(celsius_switch, config[CONF_ID])
+    cg.add(var.set_celsius_switch(celsius_switch))
+
+    percent_switch = await switch.new_switch(config[CONF_PERCENT_SWITCH])
+    await cg.register_parented(percent_switch, config[CONF_ID])
+    cg.add(var.set_percent_switch(percent_switch))
 
     cg.add_library("Wire", None)
     cg.add_library("https://github.com/petrkr/SegLCDLib.git#0bb603a27d74507608aa63945588ea3f4753d005", None)

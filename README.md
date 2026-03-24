@@ -12,6 +12,7 @@ Status:
 - external component layout
 - first fixed-purpose component for temperature/humidity display
 - custom ESPHome I2C transport for SegLCDLib
+- built-in 4 `number` entities and 2 `switch` entities
 
 Example:
 
@@ -55,70 +56,9 @@ seglcd_temphum:
   show_celsius: true
   show_percent: true
   update_interval: 10s
-
-number:
-  - platform: template
-    name: LCD Temperature
-    min_value: -40
-    max_value: 99.9
-    step: 0.1
-    optimistic: true
-    set_action:
-      - lambda: |-
-          id(my_lcd).set_temperature_value(x);
-
-  - platform: template
-    name: LCD Humidity
-    min_value: 0
-    max_value: 100
-    step: 1
-    optimistic: true
-    set_action:
-      - lambda: |-
-          id(my_lcd).set_humidity_value(x);
-
-  - platform: template
-    name: LCD Battery
-    min_value: 0
-    max_value: 4
-    step: 1
-    optimistic: true
-    set_action:
-      - lambda: |-
-          id(my_lcd).set_battery_level_value((uint8_t) x);
-
-  - platform: template
-    name: LCD Signal
-    min_value: 0
-    max_value: 4
-    step: 1
-    optimistic: true
-    set_action:
-      - lambda: |-
-          id(my_lcd).set_signal_level_value((uint8_t) x);
-
-switch:
-  - platform: template
-    name: LCD Celsius Flag
-    optimistic: true
-    turn_on_action:
-      - lambda: |-
-          id(my_lcd).set_show_celsius(true);
-    turn_off_action:
-      - lambda: |-
-          id(my_lcd).set_show_celsius(false);
-
-  - platform: template
-    name: LCD Percent Flag
-    optimistic: true
-    turn_on_action:
-      - lambda: |-
-          id(my_lcd).set_show_percent(true);
-    turn_off_action:
-      - lambda: |-
-          id(my_lcd).set_show_percent(false);
 ```
 
 Notes:
 - this PoC uses ESPHome `i2c_id`
+- the component creates its own control entities for temperature, humidity, battery, signal, celsius flag and percent flag
 - intended as the first external-components prototype before upstreaming

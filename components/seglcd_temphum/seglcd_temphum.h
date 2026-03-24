@@ -1,8 +1,11 @@
 #pragma once
 
 #include "esphome/components/i2c/i2c.h"
+#include "esphome/components/number/number.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/switch/switch.h"
 #include "esphome/core/component.h"
+#include "esphome/core/helpers.h"
 #include "SegLCD_PCF85176_TempHum.h"
 #include "segtransport_i2c_esphome.h"
 
@@ -33,6 +36,12 @@ class SegLCDTempHumComponent : public PollingComponent {
   void clear_humidity_value();
   void clear_battery_level_value();
   void clear_signal_level_value();
+  void set_temperature_number(number::Number *number) { this->temperature_number_ = number; }
+  void set_humidity_number(number::Number *number) { this->humidity_number_ = number; }
+  void set_battery_level_number(number::Number *number) { this->battery_level_number_ = number; }
+  void set_signal_level_number(number::Number *number) { this->signal_level_number_ = number; }
+  void set_celsius_switch(switch_::Switch *sw) { this->celsius_switch_ = sw; }
+  void set_percent_switch(switch_::Switch *sw) { this->percent_switch_ = sw; }
 
  protected:
   void render_();
@@ -54,6 +63,12 @@ class SegLCDTempHumComponent : public PollingComponent {
   sensor::Sensor *humidity_sensor_{nullptr};
   sensor::Sensor *battery_level_sensor_{nullptr};
   sensor::Sensor *signal_level_sensor_{nullptr};
+  number::Number *temperature_number_{nullptr};
+  number::Number *humidity_number_{nullptr};
+  number::Number *battery_level_number_{nullptr};
+  number::Number *signal_level_number_{nullptr};
+  switch_::Switch *celsius_switch_{nullptr};
+  switch_::Switch *percent_switch_{nullptr};
 
   bool show_celsius_{true};
   bool show_percent_{true};
@@ -70,6 +85,36 @@ class SegLCDTempHumComponent : public PollingComponent {
   uint8_t subaddress_;
   SegTransportI2CESPHome bus_;
   SegLCD_PCF85176_TempHumidity lcd_;
+};
+
+class SegLCDTempHumTemperatureNumber : public number::Number, public Parented<SegLCDTempHumComponent> {
+ protected:
+  void control(float value) override;
+};
+
+class SegLCDTempHumHumidityNumber : public number::Number, public Parented<SegLCDTempHumComponent> {
+ protected:
+  void control(float value) override;
+};
+
+class SegLCDTempHumBatteryLevelNumber : public number::Number, public Parented<SegLCDTempHumComponent> {
+ protected:
+  void control(float value) override;
+};
+
+class SegLCDTempHumSignalLevelNumber : public number::Number, public Parented<SegLCDTempHumComponent> {
+ protected:
+  void control(float value) override;
+};
+
+class SegLCDTempHumCelsiusSwitch : public switch_::Switch, public Parented<SegLCDTempHumComponent> {
+ protected:
+  void write_state(bool state) override;
+};
+
+class SegLCDTempHumPercentSwitch : public switch_::Switch, public Parented<SegLCDTempHumComponent> {
+ protected:
+  void write_state(bool state) override;
 };
 
 }  // namespace seglcd_temphum
