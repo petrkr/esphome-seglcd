@@ -36,6 +36,7 @@ void SegLCDTempHumComponent::set_show_percent(bool v) {
 }
 
 void SegLCDTempHumComponent::set_field_number(DisplayField &field, float value) {
+  field.text.clear();
   field.number.set(value);
   if (field.number_entity != nullptr)
     field.number_entity->publish_state(value);
@@ -43,6 +44,7 @@ void SegLCDTempHumComponent::set_field_number(DisplayField &field, float value) 
 }
 
 void SegLCDTempHumComponent::set_field_text(DisplayField &field, const std::string &value) {
+  field.number.clear();
   field.text.set(value);
   if (field.text_entity != nullptr)
     field.text_entity->publish_state(value);
