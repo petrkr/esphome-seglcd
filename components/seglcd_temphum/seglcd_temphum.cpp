@@ -104,12 +104,18 @@ void SegLCDTempHumComponent::render_() {
 
 void SegLCDTempHumComponent::apply_labels_() {
   uint8_t labels = 0;
+  uint8_t clear_labels = 0;
   if (this->show_celsius_) {
     labels |= SegLCD_PCF85176_TempHumidity::LABEL_DEGREE_C;
+  } else {
+    clear_labels |= SegLCD_PCF85176_TempHumidity::LABEL_DEGREE_C;
   }
   if (this->show_percent_) {
     labels |= SegLCD_PCF85176_TempHumidity::LABEL_PROC;
+  } else {
+    clear_labels |= SegLCD_PCF85176_TempHumidity::LABEL_PROC;
   }
+  this->lcd_.clearLabels(clear_labels);
   this->lcd_.setLabels(labels);
 }
 

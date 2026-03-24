@@ -22,8 +22,8 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_HUMIDITY): cv.use_id(sensor.Sensor),
             cv.Optional(CONF_BATTERY_LEVEL): cv.use_id(sensor.Sensor),
             cv.Optional(CONF_SIGNAL_LEVEL): cv.use_id(sensor.Sensor),
-            cv.Optional(CONF_SHOW_CELSIUS, default=True): cv.boolean,
-            cv.Optional(CONF_SHOW_PERCENT, default=True): cv.boolean,
+            cv.Optional(CONF_SHOW_CELSIUS, default=False): cv.boolean,
+            cv.Optional(CONF_SHOW_PERCENT, default=False): cv.boolean,
             cv.Optional(CONF_SUBADDRESS, default=0): cv.int_range(min=0, max=7),
         }
     )
