@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+
+# ESPHome / PlatformIO
+.esphome/
+**/.esphome/
+.pio/
+**/.pio/
+.piolibdeps/
+**/.piolibdeps/
+dependencies.lock
+**/dependencies.lock
+
+# Local secrets
+secrets.yaml
+**/secrets.yaml
