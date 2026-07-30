@@ -69,6 +69,9 @@ class SegLCDDisplay : public PollingComponent {
   void off();
 
  protected:
+  SegLCDLib *create_lcd_();
+  SegLCDLib *create_pcf85134_xygax_();
+  const char *model_name_() const;
   void print_va_(uint8_t column, uint8_t row, const char *format, va_list args);
 
   uint8_t address_;

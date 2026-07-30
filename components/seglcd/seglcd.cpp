@@ -3,10 +3,6 @@
 #include <cstdarg>
 #include <cstdio>
 
-#ifdef SEGLCD_ENABLE_PCF85134_XYGAX
-#include "SegLCD_PCF85134_Xygax.h"
-#endif
-
 #include "esphome/core/log.h"
 
 namespace esphome {
@@ -45,13 +41,7 @@ void SegLCDDisplay::setup() {
     return;
   }
 
-  switch (this->model_) {
-#ifdef SEGLCD_ENABLE_PCF85134_XYGAX
-    case SEGLCD_MODEL_PCF85134_XYGAX:
-      this->lcd_ = new SegLCD_PCF85134_Xygax(this->transport_, this->address_, this->subaddress_);
-      break;
-#endif
-  }
+  this->lcd_ = this->create_lcd_();
 
   if (this->lcd_ == nullptr) {
     ESP_LOGE(TAG, "Configured SegLCD model is not enabled");
@@ -75,7 +65,7 @@ void SegLCDDisplay::update() {
 
 void SegLCDDisplay::dump_config() {
   ESP_LOGCONFIG(TAG, "SegLCD Display");
-  ESP_LOGCONFIG(TAG, "  Model: PCF85134 Xygax");
+  ESP_LOGCONFIG(TAG, "  Model: %s", this->model_name_());
   ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
   ESP_LOGCONFIG(TAG, "  Subaddress: %u", this->subaddress_);
   LOG_UPDATE_INTERVAL(this);
@@ -156,6 +146,26 @@ void SegLCDDisplay::print_va_(uint8_t column, uint8_t row, const char *format, v
   char buffer[64];
   std::vsnprintf(buffer, sizeof(buffer), format, args);
   this->print(column, row, buffer);
+}
+
+SegLCDLib *SegLCDDisplay::create_lcd_() {
+  switch (this->model_) {
+#ifdef SEGLCD_ENABLE_PCF85134_XYGAX
+    case SEGLCD_MODEL_PCF85134_XYGAX:
+      return this->create_pcf85134_xygax_();
+#endif
+  }
+  return nullptr;
+}
+
+const char *SegLCDDisplay::model_name_() const {
+  switch (this->model_) {
+#ifdef SEGLCD_ENABLE_PCF85134_XYGAX
+    case SEGLCD_MODEL_PCF85134_XYGAX:
+      return "PCF85134 Xygax";
+#endif
+  }
+  return "unknown";
 }
 
 }  // namespace seglcd
