@@ -65,7 +65,7 @@ void SegLCDDisplay::update() {
 
 void SegLCDDisplay::dump_config() {
   ESP_LOGCONFIG(TAG, "SegLCD Display");
-  ESP_LOGCONFIG(TAG, "  Model: %s", this->model_name_());
+  ESP_LOGCONFIG(TAG, "  Model: %s", this->model_name_);
   ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
   ESP_LOGCONFIG(TAG, "  Subaddress: %u", this->subaddress_);
   LOG_UPDATE_INTERVAL(this);
@@ -156,16 +156,6 @@ SegLCDLib *SegLCDDisplay::create_lcd_() {
 #endif
   }
   return nullptr;
-}
-
-const char *SegLCDDisplay::model_name_() const {
-  switch (this->model_) {
-#ifdef SEGLCD_ENABLE_PCF85134_XYGAX
-    case SEGLCD_MODEL_PCF85134_XYGAX:
-      return "PCF85134 Xygax";
-#endif
-  }
-  return "unknown";
 }
 
 }  // namespace seglcd

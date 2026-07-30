@@ -41,6 +41,7 @@ class SegLCDDisplay : public PollingComponent {
   ~SegLCDDisplay();
 
   void set_model(SegLCDModel model) { this->model_ = model; }
+  void set_model_name(const char *model_name) { this->model_name_ = model_name; }
   void set_i2c_bus(i2c::I2CBus *bus) { this->transport_.set_i2c_bus(bus); }
   void set_writer(seglcd_writer_t &&writer) {
     this->writer_ = std::move(writer);
@@ -71,12 +72,12 @@ class SegLCDDisplay : public PollingComponent {
  protected:
   SegLCDLib *create_lcd_();
   SegLCDLib *create_pcf85134_xygax_();
-  const char *model_name_() const;
   void print_va_(uint8_t column, uint8_t row, const char *format, va_list args);
 
   uint8_t address_;
   uint8_t subaddress_;
   SegLCDModel model_{SEGLCD_MODEL_PCF85134_XYGAX};
+  const char *model_name_{"unknown"};
   SegLCDI2CTransport transport_;
   SegLCDLib *lcd_{nullptr};
   seglcd_writer_t writer_;

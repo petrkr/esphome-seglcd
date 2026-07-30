@@ -43,9 +43,12 @@ async def to_code(config):
     if not CORE.using_arduino:
         raise cv.Invalid("seglcd requires the Arduino framework")
 
+    model = SUPPORTED_MODELS[config[CONF_MODEL]]
+
     var = cg.new_Pvariable(config[CONF_ID], config[CONF_ADDRESS], config[CONF_SUBADDRESS])
     await cg.register_component(var, config)
-    cg.add(var.set_model(cg.RawExpression(SUPPORTED_MODELS[config[CONF_MODEL]]["enum"])))
+    cg.add(var.set_model(cg.RawExpression(model["enum"])))
+    cg.add(var.set_model_name(model["label"]))
 
     bus = await cg.get_variable(config[i2c.CONF_I2C_ID])
     cg.add(var.set_i2c_bus(bus))
@@ -59,7 +62,7 @@ async def to_code(config):
         cg.add(var.set_writer(lambda_))
 
     cg.add_define("SEGLCD_DISABLE_ALL_LCDS")
-    cg.add_define(SUPPORTED_MODELS[config[CONF_MODEL]]["define"])
+    cg.add_define(model["define"])
     cg.add_library("Wire", None)
     if config[CONF_LIBRARY_SOURCE] is not None:
         cg.add_library("SegLCDLib", config[CONF_LIBRARY_VERSION], config[CONF_LIBRARY_SOURCE])
