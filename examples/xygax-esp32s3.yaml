@@ -1,0 +1,65 @@
+substitutions:
+  name: seglcd-xygax
+  friendly_name: SegLCD Xygax
+  i2c_sda: GPIO1
+  i2c_scl: GPIO2
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [seglcd]
+
+esp32:
+  board: esp32-s3-devkitc-1
+  toolchain: platformio
+  framework:
+    type: arduino
+
+logger:
+
+api:
+
+web_server:
+  port: 80
+  version: 3
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+text:
+  - platform: template
+    name: LCD Text
+    id: lcd_text
+    optimistic: true
+    min_length: 0
+    max_length: 8
+    mode: text
+    restore_value: true
+
+i2c:
+  id: bus_a
+  sda: ${i2c_sda}
+  scl: ${i2c_scl}
+  scan: true
+
+display:
+  - platform: seglcd
+    id: lcd
+    i2c_id: bus_a
+    model: pcf85134_xygax
+    library_source: file:///home/petrkr/git/SegLCDLib
+    library_version: null
+    address: 0x38
+    subaddress: 0
+    update_interval: 1s
+    lambda: |-
+      it.print(id(lcd_text).state.c_str());
