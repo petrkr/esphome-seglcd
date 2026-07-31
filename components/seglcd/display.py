@@ -61,9 +61,9 @@ async def to_code(config):
         )
         cg.add(var.set_writer(lambda_))
 
-    cg.add_define("SEGLCD_DISABLE_ALL_LCDS")
-    cg.add_define(model["define"])
-    cg.add_library("Wire", None)
+    cg.add_build_flag("-DSEGLCD_DISABLE_ALL_LCDS")
+    cg.add_build_flag("-DSEGLCD_DISABLE_ARDUINO_TRANSPORT")
+    cg.add_build_flag(f"-D{model['define']}")
     if config[CONF_LIBRARY_SOURCE] is not None:
         cg.add_library("SegLCDLib", config[CONF_LIBRARY_VERSION], config[CONF_LIBRARY_SOURCE])
     else:
