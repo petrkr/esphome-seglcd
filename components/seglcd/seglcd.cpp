@@ -154,6 +154,10 @@ SegLCDLib *SegLCDDisplay::create_lcd_() {
     case SEGLCD_MODEL_PCF85134_XYGAX:
       return this->create_pcf85134_xygax_();
 #endif
+#ifdef SEGLCD_ENABLE_PCF85176_4DR821B
+    case SEGLCD_MODEL_PCF85176_4DR821B:
+      return this->create_pcf85176_4dr821b_();
+#endif
   }
   return nullptr;
 }

@@ -21,6 +21,7 @@ using seglcd_writer_t = display::DisplayWriter<SegLCDDisplay>;
 
 enum SegLCDModel {
   SEGLCD_MODEL_PCF85134_XYGAX,
+  SEGLCD_MODEL_PCF85176_4DR821B,
 };
 
 class SegLCDI2CTransport : public SegTransportI2C {
@@ -66,12 +67,15 @@ class SegLCDDisplay : public PollingComponent {
   void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
   void printf(uint8_t column, const char *format, ...) __attribute__((format(printf, 3, 4)));
   void printf(uint8_t column, uint8_t row, const char *format, ...) __attribute__((format(printf, 4, 5)));
+  void set_arrow(bool state);
+  void set_tilde(bool state);
   void on();
   void off();
 
  protected:
   SegLCDLib *create_lcd_();
   SegLCDLib *create_pcf85134_xygax_();
+  SegLCDLib *create_pcf85176_4dr821b_();
   void print_va_(uint8_t column, uint8_t row, const char *format, va_list args);
 
   uint8_t address_;

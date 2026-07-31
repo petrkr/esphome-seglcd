@@ -15,6 +15,11 @@ SUPPORTED_MODELS = {
         "define": "SEGLCD_ENABLE_PCF85134_XYGAX",
         "enum": "esphome::seglcd::SEGLCD_MODEL_PCF85134_XYGAX",
     },
+    "pcf85176_4dr821b": {
+        "label": "PCF85176 4DR821B",
+        "define": "SEGLCD_ENABLE_PCF85176_4DR821B",
+        "enum": "esphome::seglcd::SEGLCD_MODEL_PCF85176_4DR821B",
+    },
 }
 
 seglcd_ns = cg.esphome_ns.namespace("seglcd")
