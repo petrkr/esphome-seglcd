@@ -44,6 +44,9 @@ text:
     max_length: 8
     mode: text
     restore_value: true
+    on_value:
+      then:
+        - component.update: lcd
 
 i2c:
   id: bus_a
@@ -60,6 +63,6 @@ display:
     library_version: null
     address: 0x38
     subaddress: 0
-    update_interval: 1s
+    update_interval: never
     lambda: |-
       it.print(id(lcd_text).state.c_str());
