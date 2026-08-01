@@ -58,7 +58,7 @@ display:
   - platform: seglcd
     id: lcd
     i2c_id: bus_a
-    model: pcf85134_xygax
+    model: pcf85134_xygax_seg_i2c
     library_source: file:///home/petrkr/git/SegLCDLib
     library_version: null
     address: 0x38

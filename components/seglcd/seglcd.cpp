@@ -150,9 +150,9 @@ void SegLCDDisplay::print_va_(uint8_t column, uint8_t row, const char *format, v
 
 SegLCDLib *SegLCDDisplay::create_lcd_() {
   switch (this->model_) {
-#ifdef SEGLCD_ENABLE_PCF85134_XYGAX
-    case SEGLCD_MODEL_PCF85134_XYGAX:
-      return this->create_pcf85134_xygax_();
+#ifdef SEGLCD_ENABLE_PCF85134_XYGAX_SEG_I2C
+    case SEGLCD_MODEL_PCF85134_XYGAX_SEG_I2C:
+      return this->create_pcf85134_xygax_seg_i2c_();
 #endif
 #ifdef SEGLCD_ENABLE_PCF85176_4DR821B
     case SEGLCD_MODEL_PCF85176_4DR821B:

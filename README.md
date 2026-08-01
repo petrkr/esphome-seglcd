@@ -9,7 +9,7 @@ the Arduino framework.
 
 | Model option | SegLCDLib class | Build macro |
 | --- | --- | --- |
-| `pcf85134_xygax` | `SegLCD_PCF85134_Xygax` | `SEGLCD_ENABLE_PCF85134_XYGAX` |
+| `pcf85134_xygax_seg_i2c` | `SegLCD_PCF85134_XygaxSegI2C` | `SEGLCD_ENABLE_PCF85134_XYGAX_SEG_I2C` |
 | `pcf85176_4dr821b` | `SegLCD_PCF85176_4DR821B` | `SEGLCD_ENABLE_PCF85176_4DR821B` |
 
 The component passes SegLCDLib build flags itself:
@@ -42,7 +42,7 @@ display:
   - platform: seglcd
     id: lcd
     i2c_id: bus_a
-    model: pcf85134_xygax
+    model: pcf85134_xygax_seg_i2c
     library_source: file:///home/user/git/SegLCDLib
     library_version: null
     address: 0x38
@@ -78,7 +78,7 @@ display:
   - platform: seglcd
     id: lcd
     i2c_id: bus_a
-    model: pcf85134_xygax
+    model: pcf85134_xygax_seg_i2c
     library_source: file:///home/user/git/SegLCDLib
     library_version: null
     update_interval: never

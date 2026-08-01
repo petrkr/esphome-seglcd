@@ -20,7 +20,7 @@ class SegLCDDisplay;
 using seglcd_writer_t = display::DisplayWriter<SegLCDDisplay>;
 
 enum SegLCDModel {
-  SEGLCD_MODEL_PCF85134_XYGAX,
+  SEGLCD_MODEL_PCF85134_XYGAX_SEG_I2C,
   SEGLCD_MODEL_PCF85176_4DR821B,
 };
 
@@ -74,13 +74,13 @@ class SegLCDDisplay : public PollingComponent {
 
  protected:
   SegLCDLib *create_lcd_();
-  SegLCDLib *create_pcf85134_xygax_();
+  SegLCDLib *create_pcf85134_xygax_seg_i2c_();
   SegLCDLib *create_pcf85176_4dr821b_();
   void print_va_(uint8_t column, uint8_t row, const char *format, va_list args);
 
   uint8_t address_;
   uint8_t subaddress_;
-  SegLCDModel model_{SEGLCD_MODEL_PCF85134_XYGAX};
+  SegLCDModel model_{SEGLCD_MODEL_PCF85134_XYGAX_SEG_I2C};
   const char *model_name_{"unknown"};
   SegLCDI2CTransport transport_;
   SegLCDLib *lcd_{nullptr};

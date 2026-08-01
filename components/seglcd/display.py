@@ -10,10 +10,10 @@ CONF_LIBRARY_SOURCE = "library_source"
 CONF_LIBRARY_VERSION = "library_version"
 
 SUPPORTED_MODELS = {
-    "pcf85134_xygax": {
-        "label": "PCF85134 Xygax",
-        "define": "SEGLCD_ENABLE_PCF85134_XYGAX",
-        "enum": "esphome::seglcd::SEGLCD_MODEL_PCF85134_XYGAX",
+    "pcf85134_xygax_seg_i2c": {
+        "label": "PCF85134 Xygax SEG_I2C",
+        "define": "SEGLCD_ENABLE_PCF85134_XYGAX_SEG_I2C",
+        "enum": "esphome::seglcd::SEGLCD_MODEL_PCF85134_XYGAX_SEG_I2C",
     },
     "pcf85176_4dr821b": {
         "label": "PCF85176 4DR821B",
