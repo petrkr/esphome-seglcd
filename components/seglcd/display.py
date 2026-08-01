@@ -35,7 +35,7 @@ CONFIG_SCHEMA = (
                 CONF_LIBRARY_SOURCE,
                 default="https://github.com/petrkr/SegLCDLib.git",
             ): cv.Any(cv.string, None),
-            cv.Optional(CONF_LIBRARY_VERSION, default="refactor"): cv.Any(cv.string, None),
+            cv.Optional(CONF_LIBRARY_VERSION, default="develop"): cv.Any(cv.string, None),
             cv.Optional(CONF_LAMBDA): cv.lambda_,
         }
     )
