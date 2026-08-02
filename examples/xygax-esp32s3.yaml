@@ -65,4 +65,4 @@ display:
     subaddress: 0
     update_interval: never
     lambda: |-
-      it.print(id(lcd_text).state.c_str());
+      lcd.print(id(lcd_text).state.c_str());

@@ -1,28 +1,19 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdarg>
 #include <cstdint>
-#include <string>
+#include <functional>
 #include <utility>
 
 #include "SegLCDLib.h"
 #include "SegTransport.h"
-#include "esphome/components/display/display.h"
-#include "esphome/components/i2c/i2c.h"
 #include "esphome/core/component.h"
+#include "esphome/components/i2c/i2c.h"
 
 namespace esphome {
 namespace seglcd {
 
-class SegLCDDisplay;
-
-using seglcd_writer_t = display::DisplayWriter<SegLCDDisplay>;
-
-enum SegLCDModel {
-  SEGLCD_MODEL_PCF85134_XYGAX_SEG_I2C,
-  SEGLCD_MODEL_PCF85176_4DR821B,
-};
+static const char *const TAG = "seglcd";
 
 class SegLCDI2CTransport : public SegTransportI2C {
  public:
@@ -36,57 +27,13 @@ class SegLCDI2CTransport : public SegTransportI2C {
   i2c::I2CBus *bus_{nullptr};
 };
 
-class SegLCDDisplay : public PollingComponent {
- public:
-  SegLCDDisplay(uint8_t address, uint8_t subaddress);
-  ~SegLCDDisplay();
-
-  void set_model(SegLCDModel model) { this->model_ = model; }
-  void set_model_name(const char *model_name) { this->model_name_ = model_name; }
-  void set_i2c_bus(i2c::I2CBus *bus) { this->transport_.set_i2c_bus(bus); }
-  void set_writer(seglcd_writer_t &&writer) {
-    this->writer_ = std::move(writer);
-    this->writer_configured_ = true;
-  }
-
-  void setup() override;
-  void update() override;
-  void dump_config() override;
-  float get_setup_priority() const override { return setup_priority::DATA; }
-
-  void clear();
-  void home();
-  void set_cursor(uint8_t column);
-  void set_cursor(uint8_t column, uint8_t row);
-  void print(const char *str);
-  void print(const std::string &str);
-  void print(uint8_t column, const char *str);
-  void print(uint8_t column, const std::string &str);
-  void print(uint8_t column, uint8_t row, const char *str);
-  void print(uint8_t column, uint8_t row, const std::string &str);
-  void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
-  void printf(uint8_t column, const char *format, ...) __attribute__((format(printf, 3, 4)));
-  void printf(uint8_t column, uint8_t row, const char *format, ...) __attribute__((format(printf, 4, 5)));
-  void set_arrow(bool state);
-  void set_tilde(bool state);
-  void on();
-  void off();
-
- protected:
-  SegLCDLib *create_lcd_();
-  SegLCDLib *create_pcf85134_xygax_seg_i2c_();
-  SegLCDLib *create_pcf85176_4dr821b_();
-  void print_va_(uint8_t column, uint8_t row, const char *format, va_list args);
-
-  uint8_t address_;
-  uint8_t subaddress_;
-  SegLCDModel model_{SEGLCD_MODEL_PCF85134_XYGAX_SEG_I2C};
-  const char *model_name_{"unknown"};
-  SegLCDI2CTransport transport_;
-  SegLCDLib *lcd_{nullptr};
-  seglcd_writer_t writer_;
-  bool writer_configured_{false};
-};
+// Shared PollingComponent lifecycle steps, identical for every SegLCD model.
+// Each per-model display class calls these from its own setup()/update()/
+// dump_config() overrides instead of duplicating the logic; the writer
+// lambda itself (which needs the concrete model type) stays in the caller.
+bool seglcd_setup(PollingComponent *component, SegLCDI2CTransport &transport, SegLCDLib &lcd);
+void seglcd_update(SegLCDLib &lcd);
+void seglcd_dump_config(const char *model_name, uint8_t address, uint8_t subaddress, PollingComponent *component);
 
 }  // namespace seglcd
 }  // namespace esphome
