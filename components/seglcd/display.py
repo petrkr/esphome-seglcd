@@ -8,7 +8,6 @@ from esphome.cpp_generator import LambdaExpression
 CONF_MODEL = "model"
 CONF_SUBADDRESS = "subaddress"
 CONF_LIBRARY_SOURCE = "library_source"
-CONF_LIBRARY_VERSION = "library_version"
 
 SUPPORTED_MODELS = {
     "pcf85134_xygax_seg_i2c": {
@@ -51,11 +50,8 @@ def _model_schema(config):
                 cv.Optional(CONF_SUBADDRESS, default=0): cv.int_range(min=0, max=7),
                 cv.Optional(
                     CONF_LIBRARY_SOURCE,
-                    default="https://github.com/petrkr/SegLCDLib.git",
+                    default="https://github.com/petrkr/SegLCDLib.git#develop",
                 ): cv.Any(cv.string, None),
-                cv.Optional(CONF_LIBRARY_VERSION, default="develop"): cv.Any(
-                    cv.string, None
-                ),
                 cv.Optional(CONF_LAMBDA): cv.lambda_,
                 **{
                     cv.Optional(key): cv.templatable(cv.boolean)
@@ -119,6 +115,6 @@ async def to_code(config):
     cg.add_build_flag("-DSEGLCD_DISABLE_ARDUINO_TRANSPORT")
     cg.add_build_flag(f"-D{model['define']}")
     if config[CONF_LIBRARY_SOURCE] is not None:
-        cg.add_library("SegLCDLib", config[CONF_LIBRARY_VERSION], config[CONF_LIBRARY_SOURCE])
+        cg.add_library("SegLCDLib", None, config[CONF_LIBRARY_SOURCE])
     else:
         cg.add_library("SegLCDLib", None)
